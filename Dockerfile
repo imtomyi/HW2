@@ -23,12 +23,6 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir gunicorn
 
-# Pre-download DeepFace age model and OpenCV haarcascade models to avoid slow first requests.
-# We pass a dummy image to force the initialization and weight download.
-RUN python -c "import numpy as np; from deepface import DeepFace; \
-dummy_img = np.zeros((224, 224, 3), dtype=np.uint8); \
-DeepFace.analyze(img_path=dummy_img, actions=['age', 'gender'], enforce_detection=False, detector_backend='opencv')"
-
 # Copy the rest of the application code
 COPY . .
 
