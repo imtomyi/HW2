@@ -8,7 +8,7 @@ on:
 
 jobs:
   docker-build-push:
-    runs-on: [self-hosted, macOS, ARM64]
+    runs-on: ubuntu-latest
 
     steps:
       # 1. Checkout repository
@@ -35,11 +35,3 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:buildcache,mode=max
-
-      # 5. Deploy to Local Mac Server
-      - name: Deploy to Local Mac Server
-        run: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
-          docker stop face-analysis-api || true
-          docker rm face-analysis-api || true
-          docker run -d --name face-analysis-api -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
