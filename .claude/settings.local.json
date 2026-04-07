@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"/Users/tom/Downloads/오픈소스SW개발방법및도구 \\(Lecture4\\) HW2_튜토리얼.pdf\")"
+    ]
+  }
+}
