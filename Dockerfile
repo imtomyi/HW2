@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 # We pass a dummy image to force the initialization and weight download.
 RUN python -c "import numpy as np; from deepface import DeepFace; \
 dummy_img = np.zeros((224, 224, 3), dtype=np.uint8); \
-DeepFace.analyze(img_path=dummy_img, actions=['age'], enforce_detection=False, detector_backend='opencv')"
+DeepFace.analyze(img_path=dummy_img, actions=['age', 'gender'], enforce_detection=False, detector_backend='opencv')"
 
 # Copy the rest of the application code
 COPY . .
