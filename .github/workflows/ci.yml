@@ -8,7 +8,7 @@ on:
 
 jobs:
   docker-build-push:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS, ARM64]
 
     steps:
       # 1. Checkout repository
@@ -33,28 +33,11 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:buildcache,mode=max
 
-  deploy:
-    needs: docker-build-push
-    runs-on: self-hosted
-
-    steps:
-      - name: Deploy API Container
+      # 5. Deploy to Local Mac Server
+      - name: Deploy to Local Mac Server
         run: |
-          IMAGE_NAME="${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest"
-          CONTAINER_NAME="face-analysis-api-container"
-          
-          # 1. Log in to Docker Hub using secure piping
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          
-          # 2. Pull the latest image pushed from the previous job
-          docker pull $IMAGE_NAME
-          
-          # 3. Stop and remove the existing container cleanly (don't fail if it doesn't exist yet)
-          docker stop $CONTAINER_NAME || true
-          docker rm $CONTAINER_NAME || true
-          
-          # 4. Start the new container in detached mode (-d) and bind port 8000
-          docker run -d --name $CONTAINER_NAME -p 8000:8000 $IMAGE_NAME
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
+          docker stop face-analysis-api || true
+          docker rm face-analysis-api || true
+          docker run -d --name face-analysis-api -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
