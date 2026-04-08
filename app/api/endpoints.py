@@ -64,8 +64,8 @@ async def analyze_summarize(input: SummarizeInput):
         result = ml_service.summarizer(input.text, max_length=input.max_length, min_length=input.min_length, do_sample=False)[0]
         return {
             "original_length": len(input.text.split()),
-            "summary": result["summary_text"],
-            "summary_length": len(result["summary_text"].split())
+            "summary": result["generated_text"],
+            "summary_length": len(result["generated_text"].split())
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
@@ -84,7 +84,7 @@ async def analyze_all(input: TextInput):
         summary = None
         if len(input.text.split()) >= 30:
             sum_result = ml_service.summarizer(input.text, max_length=130, min_length=30, do_sample=False)[0]
-            summary = sum_result["summary_text"]
+            summary = sum_result["generated_text"]
 
         return {
             "text": input.text,
