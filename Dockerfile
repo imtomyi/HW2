@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt \
     && pip install --no-cache-dir gunicorn
 
-# Pre-download the model so first request is fast
+# Pre-download sentiment model
 RUN python -c "from transformers import pipeline; pipeline('sentiment-analysis', model='distilbert-base-uncased-finetuned-sst-2-english')"
 
 COPY . .
