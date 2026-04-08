@@ -32,12 +32,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sentiment-analysis-api:latest
 
       # 5. Deploy to Local Mac Server
       - name: Deploy to Local Mac Server
         run: |
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
-          docker stop face-analysis-api || true
-          docker rm face-analysis-api || true
-          docker run -d --name face-analysis-api -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/face-analysis-api:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sentiment-analysis-api:latest
+          docker stop sentiment-analysis-api || true
+          docker rm sentiment-analysis-api || true
+          docker run -d --name sentiment-analysis-api -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/sentiment-analysis-api:latest

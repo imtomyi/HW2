@@ -1,7 +1,4 @@
-numpy<2.0.0
 fastapi
 uvicorn
-python-multipart
-deepface
-opencv-python-headless
-tf-keras
+transformers
+torch
