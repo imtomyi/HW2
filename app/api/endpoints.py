@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.schemas.nlp_schemas import TextInput, BatchTextInput, SummarizeInput
+from app.schemas.nlp_schemas import TextInput, BatchTextInput, ClassifyInput
 from app.services.ml_service import ml_service
 
 router = APIRouter()
@@ -54,18 +54,22 @@ async def analyze_ner(input: TextInput):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
-@router.post("/summarize/")
-async def analyze_summarize(input: SummarizeInput):
+@router.post("/classify/")
+async def analyze_classify(input: ClassifyInput):
     if not input.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
-    if len(input.text.split()) < 30:
-        raise HTTPException(status_code=400, detail="Text is too short to summarize. Provide at least 30 words.")
+    if not input.labels:
+        raise HTTPException(status_code=400, detail="Labels list cannot be empty.")
     try:
-        result = ml_service.summarizer(input.text, max_length=input.max_length, min_length=input.min_length, do_sample=False)[0]
+        result = ml_service.zero_shot(input.text, candidate_labels=input.labels)
+        classifications = [
+            {"label": label, "confidence": round(score, 4)}
+            for label, score in zip(result["labels"], result["scores"])
+        ]
         return {
-            "original_length": len(input.text.split()),
-            "summary": result["generated_text"],
-            "summary_length": len(result["generated_text"].split())
+            "text": input.text,
+            "top_label": result["labels"][0],
+            "classifications": classifications
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
@@ -75,22 +79,29 @@ async def analyze_all(input: TextInput):
     if not input.text.strip():
         raise HTTPException(status_code=400, detail="Text cannot be empty.")
     try:
+        # Sentiment
         sent_result = ml_service.sentiment_analyzer(input.text)[0]
+
+        # NER
         ner_results = ml_service.ner_analyzer(input.text)
         entities = [
             {"entity": r["entity_group"], "word": r["word"], "confidence": round(r["score"], 4)}
             for r in ner_results
         ]
-        summary = None
-        if len(input.text.split()) >= 30:
-            sum_result = ml_service.summarizer(input.text, max_length=130, min_length=30, do_sample=False)[0]
-            summary = sum_result["generated_text"]
+
+        # Zero-shot classification
+        default_labels = ["politics", "technology", "sports", "entertainment", "business", "science", "health"]
+        classify_result = ml_service.zero_shot(input.text, candidate_labels=default_labels)
+        classifications = [
+            {"label": label, "confidence": round(score, 4)}
+            for label, score in zip(classify_result["labels"], classify_result["scores"])
+        ]
 
         return {
             "text": input.text,
             "sentiment": {"label": sent_result["label"], "confidence": round(sent_result["score"], 4)},
             "entities": entities,
-            "summary": summary
+            "classification": {"top_label": classify_result["labels"][0], "all": classifications}
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

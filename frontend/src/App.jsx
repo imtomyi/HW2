@@ -43,9 +43,9 @@ function App() {
     if (data) { setResults(data); setAnalysisType('ner') }
   }
 
-  async function handleSummarize() {
-    const data = await callApi('/summarize/', { text })
-    if (data) { setResults(data); setAnalysisType('summarize') }
+  async function handleClassify() {
+    const data = await callApi('/classify/', { text })
+    if (data) { setResults(data); setAnalysisType('classify') }
   }
 
   async function handleAll() {
@@ -57,7 +57,7 @@ function App() {
     <>
       <header className="header">
         <h1>NLP Analysis API</h1>
-        <p>Sentiment Analysis &middot; Named Entity Recognition &middot; Text Summarization</p>
+        <p>Sentiment Analysis &middot; Named Entity Recognition &middot; Topic Classification</p>
       </header>
 
       <div className="app-container">
@@ -76,8 +76,8 @@ function App() {
             <button className="btn-primary" onClick={handleNer} disabled={loading || !text.trim()}>
               NER
             </button>
-            <button className="btn-primary" onClick={handleSummarize} disabled={loading || !text.trim()}>
-              Summarize
+            <button className="btn-primary" onClick={handleClassify} disabled={loading || !text.trim()}>
+              Classify
             </button>
             <button className="btn-primary" onClick={handleAll} disabled={loading || !text.trim()}>
               Analyze All
@@ -104,7 +104,7 @@ function App() {
 
           {results && analysisType === 'sentiment' && <SentimentResult data={results} />}
           {results && analysisType === 'ner' && <NerResult data={results} />}
-          {results && analysisType === 'summarize' && <SummarizeResult data={results} />}
+          {results && analysisType === 'classify' && <ClassifyResult data={results} />}
           {results && analysisType === 'all' && <AllResult data={results} />}
         </div>
       </div>
@@ -149,14 +149,32 @@ function NerResult({ data }) {
   )
 }
 
-function SummarizeResult({ data }) {
+function ClassifyResult({ data }) {
   return (
     <div className="result-card">
-      <h3>Text Summarization</h3>
-      <p style={{ lineHeight: 1.7 }}>{data.summary}</p>
-      <p style={{ marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-        {data.original_length} words → {data.summary_length} words
+      <h3>Topic Classification</h3>
+      <p style={{ marginBottom: '1rem' }}>
+        Top topic: <span className="sentiment-badge positive">{data.top_label}</span>
       </p>
+      <div>
+        {data.classifications.map((c, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+            <span style={{ minWidth: '100px', color: 'var(--text-muted)' }}>{c.label}</span>
+            <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', borderRadius: '4px', height: '8px' }}>
+              <div style={{
+                width: `${(c.confidence * 100).toFixed(0)}%`,
+                background: 'var(--accent-primary)',
+                height: '100%',
+                borderRadius: '4px',
+                transition: 'width 0.5s ease'
+              }} />
+            </div>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', minWidth: '50px' }}>
+              {(c.confidence * 100).toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -188,17 +206,21 @@ function AllResult({ data }) {
         )}
       </div>
 
-      {data.summary ? (
-        <div className="result-card">
-          <h3>Summary</h3>
-          <p style={{ lineHeight: 1.7 }}>{data.summary}</p>
+      <div className="result-card">
+        <h3>Topic Classification</h3>
+        <p>Top topic: <span className="sentiment-badge positive">{data.classification.top_label}</span></p>
+        <div style={{ marginTop: '0.8rem' }}>
+          {data.classification.all.slice(0, 3).map((c, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.4rem' }}>
+              <span style={{ minWidth: '100px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>{c.label}</span>
+              <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', borderRadius: '4px', height: '6px' }}>
+                <div style={{ width: `${(c.confidence * 100).toFixed(0)}%`, background: 'var(--accent-primary)', height: '100%', borderRadius: '4px' }} />
+              </div>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{(c.confidence * 100).toFixed(1)}%</span>
+            </div>
+          ))}
         </div>
-      ) : (
-        <div className="result-card">
-          <h3>Summary</h3>
-          <p style={{ color: 'var(--text-muted)' }}>Text too short to summarize (need 30+ words).</p>
-        </div>
-      )}
+      </div>
     </>
   )
 }

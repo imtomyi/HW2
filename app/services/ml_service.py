@@ -7,14 +7,14 @@ class MLService:
     def __init__(self):
         self.sentiment_analyzer = None
         self.ner_analyzer = None
-        self.summarizer = None
+        self.zero_shot = None
 
     def load_models(self):
         """Loads Hugging Face models into memory."""
         logger.info("Loading ML models. This may take a moment...")
         self.sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
         self.ner_analyzer = pipeline("ner", model="dslim/bert-base-NER", aggregation_strategy="simple")
-        self.summarizer = pipeline("text2text-generation", model="sshleifer/distilbart-cnn-12-6")
+        self.zero_shot = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
         logger.info("ML models loaded successfully.")
 
     def clear_models(self):
@@ -22,6 +22,6 @@ class MLService:
         logger.info("Clearing ML models from memory.")
         self.sentiment_analyzer = None
         self.ner_analyzer = None
-        self.summarizer = None
+        self.zero_shot = None
 
 ml_service = MLService()

@@ -6,7 +6,6 @@ class TextInput(BaseModel):
 class BatchTextInput(BaseModel):
     texts: list[str]
 
-class SummarizeInput(BaseModel):
+class ClassifyInput(BaseModel):
     text: str
-    max_length: int = 130
-    min_length: int = 30
+    labels: list[str] = ["politics", "technology", "sports", "entertainment", "business", "science", "health"]
