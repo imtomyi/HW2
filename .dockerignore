@@ -13,3 +13,6 @@ Dockerfile
 .git/
 .gitignore
 README.md
+frontend/
+node_modules/
+*.md
