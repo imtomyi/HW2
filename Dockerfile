@@ -1,3 +1,12 @@
+# Stage 1: Build React frontend
+FROM node:20-alpine AS frontend-build
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ .
+RUN npm run build
+
+# Stage 2: Python backend
 FROM python:3.10-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -19,6 +28,9 @@ pipeline('ner', model='dslim/bert-base-NER', aggregation_strategy='simple'); \
 pipeline('summarization', model='sshleifer/distilbart-cnn-12-6')"
 
 COPY . .
+
+# Copy built React frontend from stage 1
+COPY --from=frontend-build /frontend/dist /app/static
 
 EXPOSE 8000
 
