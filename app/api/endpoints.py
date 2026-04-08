@@ -42,11 +42,11 @@ async def analyze_ner(input: TextInput):
         results = ml_service.ner_analyzer(input.text)
         entities = [
             {
-                "entity": r["entity_group"],
-                "word": r["word"],
-                "confidence": round(r["score"], 4),
-                "start": r["start"],
-                "end": r["end"]
+                "entity": str(r["entity_group"]),
+                "word": str(r["word"]),
+                "confidence": round(float(r["score"]), 4),
+                "start": int(r["start"]),
+                "end": int(r["end"])
             }
             for r in results
         ]
@@ -85,7 +85,7 @@ async def analyze_all(input: TextInput):
         # NER
         ner_results = ml_service.ner_analyzer(input.text)
         entities = [
-            {"entity": r["entity_group"], "word": r["word"], "confidence": round(r["score"], 4)}
+            {"entity": str(r["entity_group"]), "word": str(r["word"]), "confidence": round(float(r["score"]), 4)}
             for r in ner_results
         ]
 

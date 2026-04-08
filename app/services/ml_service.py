@@ -14,7 +14,7 @@ class MLService:
         logger.info("Loading ML models. This may take a moment...")
         self.sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
         self.ner_analyzer = pipeline("ner", model="dslim/bert-base-NER", aggregation_strategy="simple")
-        self.zero_shot = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+        self.zero_shot = pipeline("zero-shot-classification", model="typeform/distilbert-base-uncased-mnli")
         logger.info("ML models loaded successfully.")
 
     def clear_models(self):
